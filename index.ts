@@ -68,7 +68,7 @@ function getErrorJSONMeta(errorsJson: ErrorJSON): JSONMeta{
     let errorJsonKeys = Object.keys(errorsJson);
     let errorJsonValues = Object.values(errorsJson);
     let errorCount:number = errorJsonKeys.length;
-    let errorRange = { min: 0, max: 0};
+    let errorRange = { min: Math.min(errorJsonValues), max: Math.max(errorJsonValues) };
     let errorTotal:number = 0;
     let errorAverage:number = 0;
 
