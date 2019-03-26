@@ -39,38 +39,40 @@ interface DataPointJSON {
     failure: FailureJSONWithMeta
 }
 
-
 // Function Declerations
 
 function isErrorsJSON(errorsJson: ErrorJSON){
-  
     let jsonEnteries = Object.entries(errorsJson);
-    
-    jsonEnteries.map(function(data) {
-      console.log(data[0],data[1]);
-
-    })
-
-/**
- * 
- * Object.enteries(errorsJson).map(data => {
- * 
- * typeof data[0] === "string"
- * typeof data[1] === "number"
- * 
- * if not return false 
- * else return true
- * 
- * */
+    for(let [ key, value ] of jsonEnteries){
+      if(typeof key !== "string" || typeof value !== "number"){
+        return false;
+      }
+    }
+    return true;
 }
 
 function isFailureJSON(failureJSON: FailureJSON){
-    
+    let jsonEnteries = Object.entries(failureJSON);
+    for(let [ key, value ] of jsonEnteries){
+      if(typeof key !== "string" || typeof !Array.isArray(value)){
+        return false;
+      }
+    }
+    return true;
 }
 
 function getErrorJSONMeta(errorsJson: ErrorJSON): JSONMeta{
 
     // process the errorsJSON and get below values
+
+    let errorJsonKeys = Object.keys(errorsJson);
+    let errorJsonValues = Object.values(errorsJson);
+    let errorCount:number = errorJsonKeys.length;
+    let errorRange = {};
+    let errorTotal:number = 0;
+    let errorAverage:number = 0;
+
+
     let meta: JSONMeta = {
         keys: ['e','rt','rt'],
         count: 5,
@@ -128,11 +130,11 @@ let d: DummyDataPoint = {
     json: {
         error: {
             data: errorsJson,
-            meta: this.getErrorJSONMeta(errorsJson)
+            meta: getErrorJSONMeta(errorsJson)
         },
         failure: {
             data: failureJson,
-            meta: this.getFailureJSONMeta(failureJson)
+            meta: getFailureJSONMeta(failureJson)
         }
     }
 }
