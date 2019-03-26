@@ -41,7 +41,7 @@ interface DataPointJSON {
 
 // Function Declerations
 
-function isErrorsJSON(errorsJson: ErrorJSON){
+function isErrorsJSON(errorsJson: any){
     let jsonEnteries = Object.entries(errorsJson);
     for(let [ key, value ] of jsonEnteries){
       if(typeof key !== "string" || typeof value !== "number"){
@@ -51,7 +51,7 @@ function isErrorsJSON(errorsJson: ErrorJSON){
     return true;
 }
 
-function isFailureJSON(failureJSON: FailureJSON){
+function isFailureJSON(failureJSON: any){
     let jsonEnteries = Object.entries(failureJSON);
     for(let [ key, value ] of jsonEnteries){
       if(typeof key !== "string" || typeof !Array.isArray(value)){
@@ -63,21 +63,19 @@ function isFailureJSON(failureJSON: FailureJSON){
 
 function getErrorJSONMeta(errorsJson: ErrorJSON): JSONMeta{
 
-    // process the errorsJSON and get below values
-
     let errorJsonKeys = Object.keys(errorsJson);
     let errorJsonValues = Object.values(errorsJson);
     let errorCount:number = errorJsonKeys.length;
-    let errorRange = { min: Math.min(errorJsonValues), max: Math.max(errorJsonValues) };
+    let errorRange = { min: Math.min(...errorJsonValues), max: Math.max(...errorJsonValues) };
     let errorTotal:number = 0;
     let errorAverage:number = 0;
 
     errorJsonValues.reduce((accumulator,currentVal) => {
-      errorCount += accumulator;
-      return accumulator;
+      errorTotal += accumulator;
+      return currentVal;
     },0);
 
-    errorAverage = errorTotal / errorCount;
+    errorAverage = Math.round(errorTotal / errorCount);
 
     let meta: JSONMeta = {
         keys: errorJsonKeys,
@@ -92,46 +90,32 @@ function getErrorJSONMeta(errorsJson: ErrorJSON): JSONMeta{
 function getFailureJSONMeta(failureJson: FailureJSON): JSONMeta{
 
     let failureJsonKeys = Object.keys(failureJson);
-    let failureJsonValues = Object.values(failureJson);
     let failureCount:number = failureJsonKeys.length;
-    let failureRange = { min: 0, max: 0};
-    let failureTotal:number = 0;
-    let failureAverage:number = 0;
-
-   failureJsonValues.reduce((accumulator,currentVal) => {
-     failureCount += accumulator;
-      return accumulator;
-    },0)
 
     let meta: JSONMeta = {
         keys: failureJsonKeys,
-        count: failureCount,
-        range: failureRange,
-        total: failureTotal,
-        average: failureAverage
+        count: failureCount
     }
     return meta
 }
 
 
-
-
 // Driver
 
-/* We Create This Structure */
-
-// Raw Json
-let rawErrorsJson = {
+let rawErrorsJson: any = {
     'FLP': 5,
     'TP': 9,
     'HP': 2
 }
 
-let errorsJson = isErrorsJSON(rawErrorsJson) ? rawErrorsJson as ErrorJSON : {};
-
-let failureJson: FailureJSON = {
+let rawFailureJson: any = {
     'Overheated': ['FLP']
 }
+
+
+let errorsJson: ErrorJSON = isErrorsJSON(rawErrorsJson) ? rawErrorsJson as ErrorJSON : {};
+let failureJson: FailureJSON = isFailureJSON(rawFailureJson) ? rawFailureJson as FailureJSON : {};
+
 
 let d: DummyDataPoint = {
     value: 2,
